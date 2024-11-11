@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from market_app.models import Market, Seller
+from market_app import models
+from market_app.models import Market, Seller , Product
  
 def validate_no_X(value):
        errors= []
@@ -55,3 +56,41 @@ class SellerCreateSerializer(serializers.Serializer):
         markets = Market.objects.filter(id_in=market_ids)
         seller.markets.set(markets)
         return seller
+    
+    
+    
+class ProductDetailSerializer(serializers.Serializer):
+        id = serializers.IntegerField(read_only=True)
+        name = serializers.CharField(max_length=255)
+        description = serializers.DictField()
+        price = serializers.DecimalField(max_digits=50, decimal_places=2)
+        markets = serializers.StringRelatedField(many=True)
+        seller = serializers.StringRelatedField(many=True)
+
+class ProductCreateSerializer(serializers.Serializer):
+        name = serializers.CharField(max_length=255)
+        description = serializers.DictField()
+        price = serializers.DecimalField(max_digits=50, decimal_places=2)
+        markets = serializers.StringRelatedField(many=True)
+        seller = serializers.StringRelatedField(many=True)
+
+
+        def validate_markets(self, value):
+          markets = Market.objects.filter(id_in=value)
+          if len(markets) != len(value):
+              raise serializers.ValidationError({"message": "passt halt nicht mit den ids"})
+          return value
+        
+        def validate_seller(self, value):
+          seller = Seller.objects.filter(id_in=value)
+          if len(seller) != len(value):
+              raise serializers.ValidationError({"message": "passt halt nicht mit den ids"})
+          return value
+    
+        def create(self, validated_data):
+         market_ids= validated_data.pop('markets')
+         product = Product.objects.filter()
+         seller = Seller.objects.create(**validated_data)
+         markets = Market.objects.filter(id_in=market_ids)
+         seller.markets.set(markets)
+         return seller
