@@ -59,7 +59,7 @@ def sellers_view(request):
 
 
 
-
+# PRODUCT
 
 @api_view(['GET', 'POST'])
 def products_view(request):
@@ -67,3 +67,11 @@ def products_view(request):
       products = Product.objects.all()
       serializer = ProductDetailSerializer(products, many = True)
       return Response(serializer.data)
+   
+   if request.method == 'POST':
+       serializer = ProductDetailSerializer(data=request.data)
+       if serializer.is_valid():
+          serializer.save()
+          return Response(serializer.data)
+       else:
+          return Response(serializer.errors)

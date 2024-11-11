@@ -57,22 +57,22 @@ class SellerCreateSerializer(serializers.Serializer):
         seller.markets.set(markets)
         return seller
     
-    
+    # PRODUCT 
     
 class ProductDetailSerializer(serializers.Serializer):
         id = serializers.IntegerField(read_only=True)
         name = serializers.CharField(max_length=255)
         description = serializers.CharField(max_length=555)
         price = serializers.DecimalField(max_digits=50, decimal_places=2)
-        markets = serializers.StringRelatedField(many=True)
-        seller = serializers.StringRelatedField(many=True)
+        markets = serializers.PrimaryKeyRelatedField(many=True, queryset=Market.objects.all())
+        seller = serializers.PrimaryKeyRelatedField(many=True, queryset=Seller.objects.all())
 
 class ProductCreateSerializer(serializers.Serializer):
         name = serializers.CharField(max_length=255)
         description = serializers.CharField(max_length=555)
         price = serializers.DecimalField(max_digits=50, decimal_places=2)
-        markets = serializers.StringRelatedField(many=True)
-        seller = serializers.StringRelatedField(many=True)
+        markets = serializers.PrimaryKeyRelatedField(many=True, queryset=Market.objects.all())
+        seller = serializers.PrimaryKeyRelatedField(many=True, queryset=Seller.objects.all())
 
 
         def validate_markets(self, value):
@@ -89,8 +89,7 @@ class ProductCreateSerializer(serializers.Serializer):
     
         def create(self, validated_data):
          market_ids= validated_data.pop('markets')
-         product = Product.objects.filter()
-         seller = Seller.objects.create(**validated_data)
+         product = Product.objects.create(**validated_data)
          markets = Market.objects.filter(id_in=market_ids)
-         seller.markets.set(markets)
-         return seller
+         product.markets.set(markets)
+         return product
