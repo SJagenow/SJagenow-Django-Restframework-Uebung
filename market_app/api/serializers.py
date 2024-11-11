@@ -62,14 +62,14 @@ class SellerCreateSerializer(serializers.Serializer):
 class ProductDetailSerializer(serializers.Serializer):
         id = serializers.IntegerField(read_only=True)
         name = serializers.CharField(max_length=255)
-        description = serializers.DictField()
+        description = serializers.CharField(max_length=555)
         price = serializers.DecimalField(max_digits=50, decimal_places=2)
         markets = serializers.StringRelatedField(many=True)
         seller = serializers.StringRelatedField(many=True)
 
 class ProductCreateSerializer(serializers.Serializer):
         name = serializers.CharField(max_length=255)
-        description = serializers.DictField()
+        description = serializers.CharField(max_length=555)
         price = serializers.DecimalField(max_digits=50, decimal_places=2)
         markets = serializers.StringRelatedField(many=True)
         seller = serializers.StringRelatedField(many=True)
