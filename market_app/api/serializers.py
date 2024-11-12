@@ -37,12 +37,25 @@ class MarketSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class MarketHayperlinkedSerializer(MarketSerializer, serializers.HyperlinkedModelSerializer):
+    
+    def __init__(self, *args, **kwargs):
+        fields = kwargs.pop('fields', None)
 
- seller = serializers.HyperlinkedRelatedField(many=True, read_only=True, view_name='seller_single')
+        super().__init__(*args, **kwargs)
+
+        if fields is not None:
+          allowed = set(fields)
+          existing = set(self.fields)
+          for field_name in existing - allowed: 
+              self.fields.pop(field_name)
+ 
 
 class Meta:
  model = Market
- fields = '__all__'
+ fields = ['id','url','name','location','description','net_worth']
+
+
+ 
 
     
 class SellerSerializer(serializers.ModelSerializer):

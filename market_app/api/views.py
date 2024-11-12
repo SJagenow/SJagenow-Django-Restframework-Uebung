@@ -9,7 +9,7 @@ from market_app.models import Market, Product, Seller
 def markets_view(request):
     if request.method == 'GET':
       markets = Market.objects.all()
-      serializer = MarketHayperlinkedSerializer(markets, many=True,context={'request': request})
+      serializer = MarketHayperlinkedSerializer(markets, many=True,context={'request': request},fields=('id','url','name'))
       return Response(serializer.data)
     
 
