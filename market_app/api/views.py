@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import MarketSerializer, ProductCreateSerializer, ProductDetailSerializer, SellerCreateSerializer,SellerDetailSerializer
+from .serializers import MarketSerializer, ProductCreateSerializer, ProductDetailSerializer, SellerCreateSerializer,SellerDetailSerializer, SellerSerializer
 from market_app.models import Market, Product, Seller
 
 
@@ -46,6 +46,8 @@ def market_single_view(request, pk):
        serializer = MarketSerializer(market)
        market.delete()
        return Response(serializer.data)
+    
+   
 
 
 
@@ -53,18 +55,40 @@ def market_single_view(request, pk):
 def sellers_view(request):
     if request.method == 'GET':
        sellers = Seller.objects.all()
-       serializer = SellerDetailSerializer(sellers, many=True)
+       serializer = SellerSerializer(sellers, many=True)
        return Response(serializer.data)
     
     if request.method == 'POST':
-        serializer = SellerCreateSerializer(data=request.data)
+        serializer = SellerSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
+        
 
 
+@api_view(['GET', 'DELETE', 'PUT'])  # Decorator für die Methoden GET, DELETE, PUT
+def seller_single_view(request, pk):
+     try:
+      seller = Seller.objects.get(pk=pk)
+     except Seller.DoesNotExist:
+      raise (f'Seller with id {pk} not found.')  # Fehlerbehandlung, falls der Verkäufer nicht existiert
+
+     if request.method == 'GET':
+        serializer = SellerSerializer(seller)
+        return Response(serializer.data)
+
+     if request.method == 'PUT':
+        serializer = SellerSerializer(seller, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+
+     if request.method == 'DELETE':
+        seller.delete()
+        return Response(status=204)  # 204 No Content, um anzuzeigen, dass die Löschung erfolgreich war
 
 # PRODUCT
 
