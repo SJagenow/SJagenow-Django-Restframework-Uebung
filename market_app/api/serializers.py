@@ -45,7 +45,7 @@ class SellerCreateSerializer(serializers.Serializer):
 
 
     def validate_markets(self, value):
-        markets = Market.objects.filter(id_in=value)
+        markets = Market.objects.filter(id__in=value)
         if len(markets) != len(value):
              raise serializers.ValidationError({"message": "passt halt nicht mit den ids"})
         return value
@@ -64,25 +64,25 @@ class ProductDetailSerializer(serializers.Serializer):
         name = serializers.CharField(max_length=255)
         description = serializers.CharField(max_length=555)
         price = serializers.DecimalField(max_digits=50, decimal_places=2)
-        markets = serializers.PrimaryKeyRelatedField(many=True, queryset=Market.objects.all())
-        seller = serializers.PrimaryKeyRelatedField(many=True, queryset=Seller.objects.all())
+        markets = serializers.ListField(child=serializers.IntegerField(), write_only=True)
+        seller = serializers.ListField(child=serializers.IntegerField(), write_only=True)
 
 class ProductCreateSerializer(serializers.Serializer):
         name = serializers.CharField(max_length=255)
         description = serializers.CharField(max_length=555)
         price = serializers.DecimalField(max_digits=50, decimal_places=2)
-        markets = serializers.PrimaryKeyRelatedField(many=True, queryset=Market.objects.all())
-        seller = serializers.PrimaryKeyRelatedField(many=True, queryset=Seller.objects.all())
+        markets = serializers.ListField(child=serializers.IntegerField(), write_only=True)
+        seller = serializers.ListField(child=serializers.IntegerField(), write_only=True)
 
 
         def validate_markets(self, value):
-          markets = Market.objects.filter(id_in=value)
+          markets = Market.objects.filter(id__in=value)
           if len(markets) != len(value):
               raise serializers.ValidationError({"message": "passt halt nicht mit den ids"})
           return value
         
         def validate_seller(self, value):
-          seller = Seller.objects.filter(id_in=value)
+          seller = Seller.objects.filter(id__in=value)
           if len(seller) != len(value):
               raise serializers.ValidationError({"message": "passt halt nicht mit den ids"})
           return value
@@ -90,6 +90,6 @@ class ProductCreateSerializer(serializers.Serializer):
         def create(self, validated_data):
          market_ids= validated_data.pop('markets')
          product = Product.objects.create(**validated_data)
-         markets = Market.objects.filter(id_in=market_ids)
+         markets = Market.objects.filter(id__in=market_ids)
          product.markets.set(markets)
          return product

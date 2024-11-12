@@ -53,16 +53,16 @@ def market_single_view(request, pk):
 def sellers_view(request):
     if request.method == 'GET':
        sellers = Seller.objects.all()
-       serializer = SellerDetailSerializer(sellers,many=True )
+       serializer = SellerDetailSerializer(sellers, many=True)
        return Response(serializer.data)
     
     if request.method == 'POST':
         serializer = SellerCreateSerializer(data=request.data)
         if serializer.is_valid():
-         serializer.save()
-         return Response(serializer.data)
+            serializer.save()
+            return Response(serializer.data)
         else:
-           return Response(serializer.errors)
+            return Response(serializer.errors)
 
 
 
@@ -78,10 +78,10 @@ def products_view(request):
    if request.method == 'POST':
        serializer = ProductCreateSerializer(data=request.data)
        if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
+           serializer.save()
+           return Response(serializer.data)
        else:
-          return Response(serializer.errors)
+           return Response(serializer.errors)
        
        
   
