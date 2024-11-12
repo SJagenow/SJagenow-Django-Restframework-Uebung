@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import MarketSerializer, ProductCreateSerializer, ProductDetailSerializer, SellerCreateSerializer,SellerDetailSerializer, SellerSerializer
+from .serializers import MarketHayperlinkedSerializer, MarketSerializer, ProductCreateSerializer, ProductDetailSerializer, SellerSerializer
 from market_app.models import Market, Product, Seller
 
 
@@ -9,7 +9,7 @@ from market_app.models import Market, Product, Seller
 def markets_view(request):
     if request.method == 'GET':
       markets = Market.objects.all()
-      serializer = MarketSerializer(markets, many=True)
+      serializer = MarketHayperlinkedSerializer(markets, many=True,context={'request': request})
       return Response(serializer.data)
     
 
@@ -29,7 +29,7 @@ def market_single_view(request, pk):
 
     if request.method == 'GET':
       market = Market.objects.get(pk=pk)
-      serializer = MarketSerializer(market)
+      serializer = MarketSerializer(market,context={'request': request})
       return Response(serializer.data)
     
     if request.method == 'PUT':
@@ -76,7 +76,7 @@ def seller_single_view(request, pk):
       raise (f'Seller with id {pk} not found.')  # Fehlerbehandlung, falls der Verkäufer nicht existiert
 
      if request.method == 'GET':
-        serializer = SellerSerializer(seller)
+        serializer = SellerSerializer(seller,context={'request': request})
         return Response(serializer.data)
 
      if request.method == 'PUT':
