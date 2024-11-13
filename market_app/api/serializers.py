@@ -103,45 +103,75 @@ class SellerSerializer(serializers.ModelSerializer):
     
     # PRODUCT 
     
-class ProductDetailSerializer(serializers.Serializer):
-        id = serializers.IntegerField(read_only=True)
-        name = serializers.CharField(max_length=255)
-        description = serializers.CharField(max_length=555)
-        price = serializers.DecimalField(max_digits=50, decimal_places=2)
-        markets = serializers.StringRelatedField(many=True)
-        seller = serializers.StringRelatedField(many=True)
-
-class ProductCreateSerializer(serializers.Serializer):
-        name = serializers.CharField(max_length=255)
-        description = serializers.CharField(max_length=555)
-        price = serializers.DecimalField(max_digits=50, decimal_places=2)
-        markets = serializers.ListField(child=serializers.IntegerField(), write_only=True)
-        seller = serializers.ListField(child=serializers.IntegerField(), write_only=True)
 
 
-        def validate_markets(self, value):
-          markets = Market.objects.filter(id__in=value)
-          if len(markets) != len(value):
-              raise serializers.ValidationError({"message": "passt halt nicht mit den ids"})
-          return value
+
+
+
+
+# class ProductDetailSerializer(serializers.Serializer):
+#         id = serializers.IntegerField(read_only=True)
+#         name = serializers.CharField(max_length=255)
+#         description = serializers.CharField(max_length=555)
+#         price = serializers.DecimalField(max_digits=50, decimal_places=2)
+#         markets = serializers.StringRelatedField(many=True)
+#         seller = serializers.StringRelatedField(many=True)
+
+# class ProductCreateSerializer(serializers.Serializer):
+#         name = serializers.CharField(max_length=255)
+#         description = serializers.CharField(max_length=555)
+#         price = serializers.DecimalField(max_digits=50, decimal_places=2)
+#         markets = serializers.ListField(child=serializers.IntegerField(), write_only=True)
+#         seller = serializers.ListField(child=serializers.IntegerField(), write_only=True)
+
+
+#         def validate_markets(self, value):
+#           markets = Market.objects.filter(id__in=value)
+#           if len(markets) != len(value):
+#               raise serializers.ValidationError({"message": "passt halt nicht mit den ids"})
+#           return value
         
-        def validate_seller(self, value):
-          seller = Seller.objects.filter(id__in=value)
-          if len(seller) != len(value):
-              raise serializers.ValidationError({"message": "passt halt nicht mit den ids"})
-          return value
+#         def validate_seller(self, value):
+#           seller = Seller.objects.filter(id__in=value)
+#           if len(seller) != len(value):
+#               raise serializers.ValidationError({"message": "passt halt nicht mit den ids"})
+#           return value
     
-        def create(self, validated_data):
+#         def create(self, validated_data):
          
-         market_ids= validated_data.pop('markets')
-         sellers_ids= validated_data.pop('seller')
+#          market_ids= validated_data.pop('markets')
+#          sellers_ids= validated_data.pop('seller')
 
-         product = Product.objects.create(**validated_data)
+#          product = Product.objects.create(**validated_data)
 
-         markets = Market.objects.filter(id__in=market_ids)
-         sellers = Seller.objects.filter(id__in=sellers_ids)
+#          markets = Market.objects.filter(id__in=market_ids)
+#          sellers = Seller.objects.filter(id__in=sellers_ids)
 
-         product.markets.set(markets)
-         product.seller.set(sellers)
-         return product
+#          product.markets.set(markets)
+#          product.seller.set(sellers)
+#          return product
         
+class ProductSerializer(serializers.ModelSerializer):
+    markets = MarketSerializer(many=True, read_only=True)
+    seller = SellerSerializer(many=True, read_only=True)
+    market_ids = serializers.PrimaryKeyRelatedField(queryset=Market.objects.all(),
+         many=True,
+         write_only = True,
+         source='markets'
+     )
+    seller_ids = serializers.PrimaryKeyRelatedField(queryset=Seller.objects.all(),
+         many=True,
+         write_only = True,
+         source='seller'
+        )
+    market_count = serializers.SerializerMethodField()
+
+    class Meta:
+         model = Product
+         fields = ["id","name","market_ids","market_count","markets","seller_ids","seller"]
+    def get_market_count(self, obj):
+          return obj.markets.count()
+
+    
+   
+

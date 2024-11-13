@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import MarketHayperlinkedSerializer, MarketSerializer, ProductCreateSerializer, ProductDetailSerializer, SellerSerializer
+from .serializers import MarketHayperlinkedSerializer, MarketSerializer, ProductSerializer, SellerSerializer
 from market_app.models import Market, Product, Seller
 
 
@@ -96,11 +96,11 @@ def seller_single_view(request, pk):
 def products_view(request):
    if request.method == 'GET':
       products = Product.objects.all()
-      serializer = ProductDetailSerializer(products, many = True)
+      serializer = ProductSerializer(products, many = True)
       return Response(serializer.data)
    
    if request.method == 'POST':
-       serializer = ProductCreateSerializer(data=request.data)
+       serializer = ProductSerializer(data=request.data)
        if serializer.is_valid():
            serializer.save()
            return Response(serializer.data)
